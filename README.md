@@ -33,7 +33,11 @@
 </div>
 
 > [!IMPORTANT]
-> BitChord is not affiliated with, endorsed by, or connected to YouTube or Google in any way. Use it at your own discretion.
+> ### 🌟 Credits & Acknowledgments
+> 
+> * **Original BitChord Author:** Huge gratitude and full credit to [Kushagra Singh](https://github.com/kushagrasinghx) and all [BitChord contributors](https://github.com/kushagrasinghx/BitChord/graphs/contributors) for creating the phenomenal [BitChord](https://github.com/kushagrasinghx/BitChord) music player, its exquisite Apple-inspired UI, and underlying architecture. This fork claims no credit for the core application and wholeheartedly encourages supporting Kushagra Singh's work via [Ko-fi](https://ko-fi.com/kushagrasinghx) and [PayPal](https://paypal.me/kuxhagrasingh).
+> * **SponsorBlock Project & Community:** Tremendous credit and thanks to [Ajay Ramachandran](https://github.com/ajayyy) and the open-source [SponsorBlock](https://sponsor.ajay.app) team, developers, and crowd-sourced database contributors who make community segment skipping possible.
+> * **Notice:** This fork exists solely to provide SponsorBlock integration for personal use and community experiments. All credit for the underlying technologies belongs entirely to their original creators and teams.
 
 ---
 
