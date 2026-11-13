@@ -41,7 +41,7 @@ jobs:
           echo "LASTFM_SECRET=${{ secrets.LASTFM_SECRET }}" >> local.properties
           echo "LISTEN_TOGETHER_SERVER=${{ secrets.LISTEN_TOGETHER_SERVER }}" >> local.properties
 
-          # Decode signing keystore if available
+          # Decode signing keystore if available, otherwise generate an ephemeral fallback keystore
           if [ -n "${{ secrets.KEYSTORE_BASE64 }}" ]; then
             echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > bitchord-release.jks
             {
@@ -52,7 +52,14 @@ jobs:
             } > keystore.properties
             echo "Release keystore decoded successfully."
           else
-            echo "::warning::KEYSTORE_BASE64 secret is not configured. Build will produce unsigned APKs."
+            echo "::warning::KEYSTORE_BASE64 secret is not configured. Generating ephemeral test signing keystore."
+            keytool -genkeypair -v -keystore bitchord-release.jks -alias purechord -keyalg RSA -keysize 2048 -validity 10000 -storepass purechordtest -keypass purechordtest -dname "CN=PureChord Test, O=PureChord, C=US"
+            {
+              echo "storeFile=bitchord-release.jks"
+              echo "storePassword=purechordtest"
+              echo "keyAlias=purechord"
+              echo "keyPassword=purechordtest"
+            } > keystore.properties
           fi
 
       - name: Grant Execute Permission for Gradlew
@@ -83,8 +90,8 @@ jobs:
 
       - name: Build Production Release APKs
         run: |
-          # BitChord uses the assembleProdRelease variant for production builds
-          ./gradlew assembleProdRelease --stacktrace
+          # Build phone prod release APK directly without WearOS companion or TV module
+          ./gradlew :app:assembleProdRelease -Pbitchord.bundleWear=false --stacktrace
 
       - name: Collect & Package Release APKs
         id: collect_apks
@@ -92,20 +99,26 @@ jobs:
           mkdir -p release-artifacts
           TAG="${{ steps.versioning.outputs.release_tag }}"
 
-          # Copy Phone APK
-          PHONE_APK=$(find app/build/outputs/apk/prod/release -name "*.apk" | head -n 1)
-          if [ -n "$PHONE_APK" ]; then
+          # Copy signed universal phone APK
+          UNIVERSAL_APK=$(find app/build/outputs/apk/prod/release -name "*universal*release*.apk" ! -name "*unsigned*" | head -n 1)
+          if [ -n "$UNIVERSAL_APK" ]; then
             DEST="release-artifacts/PureChord-${TAG}.apk"
-            cp "$PHONE_APK" "$DEST"
-            echo "Collected phone APK: $DEST"
+            cp "$UNIVERSAL_APK" "$DEST"
+            echo "Collected universal phone APK: $DEST"
           fi
 
-          # Copy Wear OS companion APK if generated
-          WEAR_APK=$(find wearos/build/outputs/apk/prod/release -name "*.apk" 2>/dev/null | head -n 1)
-          if [ -n "$WEAR_APK" ]; then
-            DEST_WEAR="release-artifacts/PureChordWear-${TAG}.apk"
-            cp "$WEAR_APK" "$DEST_WEAR"
-            echo "Collected Wear OS APK: $DEST_WEAR"
+          # Copy lighter signed arm64-v8a phone APK
+          ARM64_APK=$(find app/build/outputs/apk/prod/release -name "*arm64-v8a*release*.apk" ! -name "*unsigned*" | head -n 1)
+          if [ -n "$ARM64_APK" ]; then
+            DEST_ARM64="release-artifacts/PureChord-${TAG}-arm64-v8a.apk"
+            cp "$ARM64_APK" "$DEST_ARM64"
+            echo "Collected arm64-v8a phone APK: $DEST_ARM64"
+          fi
+
+          if [ -z "$UNIVERSAL_APK" ] && [ -z "$ARM64_APK" ]; then
+            echo "::error::No signed release APKs found in app/build/outputs/apk/prod/release"
+            ls -la app/build/outputs/apk/prod/release || true
+            exit 1
           fi
 
           echo "Generated artifacts in release-artifacts/:"
@@ -134,7 +147,8 @@ jobs:
             - **Upstream Sync:** Built from latest upstream BitChord source.
 
             #### Release Assets:
-            - Attachments below contain the signed release APKs for phone (and Wear OS companion).
+            - `PureChord-${{ steps.versioning.outputs.release_tag }}.apk`: Universal APK (all architectures)
+            - `PureChord-${{ steps.versioning.outputs.release_tag }}-arm64-v8a.apk`: Lighter arm64-v8a APK for modern Android phones
           draft: false
           prerelease: false
           files: release-artifacts/*.apk
