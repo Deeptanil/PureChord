@@ -1,0 +1,141 @@
+name: Build Signed Release APK
+
+on:
+  push:
+    branches:
+      - custom-sponsorblock
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag_suffix:
+        description: 'Release tag suffix'
+        required: false
+        default: '-sb'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build Signed Release & Publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Configure Keystore & App Secrets
+        run: |
+          # Write optional service credentials
+          echo "LASTFM_API_KEY=${{ secrets.LASTFM_API_KEY }}" > local.properties
+          echo "LASTFM_SECRET=${{ secrets.LASTFM_SECRET }}" >> local.properties
+          echo "LISTEN_TOGETHER_SERVER=${{ secrets.LISTEN_TOGETHER_SERVER }}" >> local.properties
+
+          # Decode signing keystore if available
+          if [ -n "${{ secrets.KEYSTORE_BASE64 }}" ]; then
+            echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > bitchord-release.jks
+            {
+              echo "storeFile=bitchord-release.jks"
+              echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}"
+              echo "keyAlias=${{ secrets.KEY_ALIAS }}"
+              echo "keyPassword=${{ secrets.KEY_PASSWORD }}"
+            } > keystore.properties
+            echo "Release keystore decoded successfully."
+          else
+            echo "::warning::KEYSTORE_BASE64 secret is not configured. Build will produce unsigned APKs."
+          fi
+
+      - name: Grant Execute Permission for Gradlew
+        run: chmod +x gradlew
+
+      - name: Resolve Release Version & Tag
+        id: versioning
+        run: |
+          # Extract upstream versionName from root build.gradle.kts
+          VERSION_NAME=$(grep 'extra\["bitchordVersionName"\]' build.gradle.kts | head -n 1 | sed -E 's/.*"([^"]+)".*/\1/')
+          if [ -z "$VERSION_NAME" ]; then
+            VERSION_NAME="1.0.0"
+          fi
+          
+          SUFFIX="${{ github.event.inputs.tag_suffix || '-sb' }}"
+          BASE_TAG="v${VERSION_NAME}${SUFFIX}"
+          
+          # Check if tag already exists in the repo
+          if git rev-parse "$BASE_TAG" >/dev/null 2>&1; then
+            FINAL_TAG="${BASE_TAG}.${{ github.run_number }}"
+          else
+            FINAL_TAG="$BASE_TAG"
+          fi
+
+          echo "version_name=${VERSION_NAME}" >> $GITHUB_OUTPUT
+          echo "release_tag=${FINAL_TAG}" >> $GITHUB_OUTPUT
+          echo "Resolved Release Tag: ${FINAL_TAG}"
+
+      - name: Build Production Release APKs
+        run: |
+          # BitChord uses the assembleProdRelease variant for production builds
+          ./gradlew assembleProdRelease --stacktrace
+
+      - name: Collect & Package Release APKs
+        id: collect_apks
+        run: |
+          mkdir -p release-artifacts
+          TAG="${{ steps.versioning.outputs.release_tag }}"
+
+          # Copy Phone APK
+          PHONE_APK=$(find app/build/outputs/apk/prod/release -name "*.apk" | head -n 1)
+          if [ -n "$PHONE_APK" ]; then
+            DEST="release-artifacts/BitChord-${TAG}.apk"
+            cp "$PHONE_APK" "$DEST"
+            echo "Collected phone APK: $DEST"
+          fi
+
+          # Copy Wear OS companion APK if generated
+          WEAR_APK=$(find wearos/build/outputs/apk/prod/release -name "*.apk" 2>/dev/null | head -n 1)
+          if [ -n "$WEAR_APK" ]; then
+            DEST_WEAR="release-artifacts/BitChordWear-${TAG}.apk"
+            cp "$WEAR_APK" "$DEST_WEAR"
+            echo "Collected Wear OS APK: $DEST_WEAR"
+          fi
+
+          echo "Generated artifacts in release-artifacts/:"
+          ls -lh release-artifacts/
+
+      - name: Upload Build Artifacts to Workflow Run
+        uses: actions/upload-artifact@v4
+        with:
+          name: bitchord-release-${{ steps.versioning.outputs.release_tag }}
+          path: release-artifacts/*.apk
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.versioning.outputs.release_tag }}
+          name: BitChord SponsorBlock ${{ steps.versioning.outputs.release_tag }}
+          body: |
+            ### BitChord Customized Release (`${{ steps.versioning.outputs.release_tag }}`)
+
+            Automated signed release build synchronized with upstream and enhanced with custom SponsorBlock functionality.
+
+            #### Features in this Release:
+            - **SponsorBlock Integration:** Auto-skips sponsors, promotional segments, intros, and non-music sections.
+            - **Podcasts & Video Streams Support:** Extended SponsorBlock support to podcasts and long-form video playback.
+            - **Customizable Segment Categories:** Configurable toggles directly under **Settings > Content Preferences > SponsorBlock**.
+            - **Upstream Sync:** Built from latest upstream BitChord source.
+
+            #### Release Assets:
+            - Attachments below contain the signed release APKs for phone (and Wear OS companion).
+          draft: false
+          prerelease: false
+          files: release-artifacts/*.apk
+          generate_release_notes: true

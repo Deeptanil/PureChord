@@ -930,9 +930,11 @@ class PlaybackService : MediaLibraryService() {
             if (isPlaying) {
                 pushDiscordPresence(exoPlayer)
                 startLyricsTicker()
+                com.music.bitchord.sponsorblock.SponsorBlockManager.onIsPlayingChanged(true) { player }
             } else {
                 clearDiscordPresence()
                 stopLyricsTicker()
+                com.music.bitchord.sponsorblock.SponsorBlockManager.onIsPlayingChanged(false) { player }
             }
         }
 
@@ -980,6 +982,9 @@ class PlaybackService : MediaLibraryService() {
                 // The watch extrapolates its progress ring from the last
                 // position it was given, the same way Discord does.
                 WearBridge.republish(this@PlaybackService, exoPlayer)
+                com.music.bitchord.sponsorblock.SponsorBlockManager.checkAndSkip(newPosition.positionMs) { target ->
+                    exoPlayer.seekTo(target)
+                }
             }
         }
 
@@ -3653,6 +3658,13 @@ class PlaybackService : MediaLibraryService() {
         scheduleForeignCachePurge()
         mediaItem?.mediaId?.let { id ->
             resolveLocalBitrate(id, mediaItem)
+        }
+        mediaItem?.let { item ->
+            val song = item.toSong()
+            com.music.bitchord.sponsorblock.SponsorBlockManager.onTrackChanged(
+                videoId = item.mediaId,
+                isVideo = song.isVideo || song.isVideoOrigin,
+            ) { player }
         }
 
         // A crossfade handoff never fires [formatListener] for the entering
@@ -7821,6 +7833,7 @@ class PlaybackService : MediaLibraryService() {
 
 
     override fun onDestroy() {
+        com.music.bitchord.sponsorblock.SponsorBlockManager.reset()
         WearBridge.attachStreams(null)
         WearBridge.releaseSpeaker()
         // Let go of the receiver's player but leave its session alone: a
