@@ -7,6 +7,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.music.bitchord.sponsorblock.SponsorBlockCategory
 import com.music.bitchord.sponsorblock.SponsorBlockSettings
+import com.music.bitchord.ui.components.IosSwitch
 import com.music.bitchord.ui.icons.SfIcons
 
 /**

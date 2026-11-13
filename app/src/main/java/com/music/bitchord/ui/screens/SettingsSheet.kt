@@ -2385,7 +2385,7 @@ private class SettingsSearch(
 }
 
 /** Collects the rows of one group that survived the search. */
-private class SettingsGroupScope(
+internal class SettingsGroupScope(
     private val search: SettingsSearch,
     private val header: String?,
 ) {
