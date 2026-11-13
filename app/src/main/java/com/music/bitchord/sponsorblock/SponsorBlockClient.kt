@@ -1,108 +1,85 @@
 package com.music.bitchord.sponsorblock
 
 import android.util.Log
-import android.util.LruCache
 import com.music.bitchord.data.Http
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.doubleOrNull
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Request
-import org.json.JSONArray
 
-/**
- * Client for fetching SponsorBlock skip segments.
- *
- * Segments are cached in-memory using an LRU cache to avoid redundant API hits.
- */
+/** Fetches SponsorBlock skip segments (https://sponsor.ajay.app), cached in memory. */
 object SponsorBlockClient {
 
     private const val TAG = "SponsorBlock"
-    private val segmentCache = LruCache<String, List<SponsorSegment>>(64)
+    private const val API_URL = "https://sponsor.ajay.app"
+    private const val CACHE_SIZE = 64
 
-    /**
-     * Fetches segments for [videoId] matching the currently enabled categories.
-     * Returns empty list if no segments exist (e.g. 404) or on network failure.
-     */
+    private val cache = object : LinkedHashMap<String, List<SponsorSegment>>(16, 0.75f, true) {
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, List<SponsorSegment>>?) =
+            size > CACHE_SIZE
+    }
+
+    /** Segments for [videoId]; empty when none exist or the request fails. */
     suspend fun getSegments(
         videoId: String,
-        categories: List<SponsorBlockCategory> = SponsorBlockSettings.getActiveCategories(),
+        categories: List<SponsorBlockCategory> = SponsorBlockCategory.entries,
     ): List<SponsorSegment> = withContext(Dispatchers.IO) {
         if (videoId.isBlank() || categories.isEmpty()) return@withContext emptyList()
+        synchronized(cache) { cache[videoId] }?.let { return@withContext it }
 
-        val cacheKey = "${videoId}_${categories.joinToString(",") { it.key }}"
-        segmentCache.get(cacheKey)?.let { return@withContext it }
-
-        val baseUrl = SponsorBlockSettings.apiUrl.value.toHttpUrlOrNull() ?: return@withContext emptyList()
-        val categoriesJson = JSONArray(categories.map { it.key }).toString()
-
-        val url = baseUrl.newBuilder()
-            .addPathSegment("api")
-            .addPathSegment("skipSegments")
+        val url = API_URL.toHttpUrl().newBuilder()
+            .addPathSegments("api/skipSegments")
             .addQueryParameter("videoID", videoId)
-            .addQueryParameter("categories", categoriesJson)
+            .addQueryParameter("categories", categories.joinToString(",", "[", "]") { "\"${it.key}\"" })
             .build()
-
-        val request = Request.Builder()
-            .url(url)
-            .header("User-Agent", "BitChord-Android-SponsorBlock")
-            .get()
-            .build()
+        val request = Request.Builder().url(url).get().build()
 
         try {
             Http.client.newCall(request).execute().use { response ->
                 if (response.code == 404) {
-                    // No segments submitted for this video
-                    segmentCache.put(cacheKey, emptyList())
+                    synchronized(cache) { cache[videoId] = emptyList() }
                     return@withContext emptyList()
                 }
                 if (!response.isSuccessful) {
-                    Log.w(TAG, "SponsorBlock API returned HTTP ${response.code} for $videoId")
+                    Log.w(TAG, "HTTP ${response.code} for $videoId")
                     return@withContext emptyList()
                 }
-
-                val body = response.body?.string().orEmpty()
-                if (body.isBlank()) return@withContext emptyList()
-
-                val jsonArray = JSONArray(body)
-                val segments = mutableListOf<SponsorSegment>()
-
-                for (i in 0 until jsonArray.length()) {
-                    val obj = jsonArray.optJSONObject(i) ?: continue
-                    val categoryStr = obj.optString("category")
-                    val category = SponsorBlockCategory.fromKey(categoryStr) ?: continue
-                    val segmentArray = obj.optJSONArray("segment") ?: continue
-                    if (segmentArray.length() < 2) continue
-
-                    val startSec = segmentArray.optDouble(0, 0.0)
-                    val endSec = segmentArray.optDouble(1, 0.0)
-                    if (endSec <= startSec) continue
-
-                    val startMs = (startSec * 1000).toLong()
-                    val endMs = (endSec * 1000).toLong()
-                    val uuid = obj.optString("UUID", "")
-
-                    segments.add(
-                        SponsorSegment(
-                            uuid = uuid,
-                            category = category,
-                            startMs = startMs,
-                            endMs = endMs,
-                        )
-                    )
+                parseSegments(response.body?.string().orEmpty()).also {
+                    synchronized(cache) { cache[videoId] = it }
                 }
-
-                val sorted = segments.sortedBy { it.startMs }
-                segmentCache.put(cacheKey, sorted)
-                Log.d(TAG, "Loaded ${sorted.size} SponsorBlock segments for $videoId")
-                sorted
             }
         } catch (e: Exception) {
-            Log.w(TAG, "Failed to fetch SponsorBlock segments for $videoId: ${e.message}")
+            Log.w(TAG, "Fetch failed for $videoId: ${e.message}")
             emptyList()
         }
     }
 
-    fun clearCache() {
-        segmentCache.evictAll()
+    /** Parses an API response into segments sorted by start time. */
+    internal fun parseSegments(body: String): List<SponsorSegment> {
+        if (body.isBlank()) return emptyList()
+        val array = runCatching { Json.parseToJsonElement(body).jsonArray }.getOrNull()
+            ?: return emptyList()
+        return array.mapNotNull { element ->
+            val obj = element as? JsonObject ?: return@mapNotNull null
+            val category = obj["category"]?.jsonPrimitive?.contentOrNull
+                ?.let(SponsorBlockCategory::fromKey) ?: return@mapNotNull null
+            val range = obj["segment"]?.jsonArray ?: return@mapNotNull null
+            val start = range.getOrNull(0)?.jsonPrimitive?.doubleOrNull ?: return@mapNotNull null
+            val end = range.getOrNull(1)?.jsonPrimitive?.doubleOrNull ?: return@mapNotNull null
+            if (end <= start) return@mapNotNull null
+            SponsorSegment(
+                uuid = obj["UUID"]?.jsonPrimitive?.contentOrNull.orEmpty(),
+                category = category,
+                startMs = (start * 1000).toLong(),
+                endMs = (end * 1000).toLong(),
+            )
+        }.sortedBy { it.startMs }
     }
 }

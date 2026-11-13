@@ -7241,7 +7241,10 @@ class PlaybackService : MediaLibraryService() {
 
     private fun observeSettings() {
         scope.launch {
-            AppSettings.skipSilence.collect { on -> eachPlayer { it.skipSilenceEnabled = on } }
+            AppSettings.skipSilence.collect { on ->
+                eachPlayer { it.skipSilenceEnabled = on }
+                com.music.bitchord.sponsorblock.SponsorBlockManager.onEnabledChanged(on) { player }
+            }
         }
         scope.launch {
             // The queue as it stands is re-judged at once, rather than at the
