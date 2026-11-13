@@ -95,7 +95,7 @@ jobs:
           # Copy Phone APK
           PHONE_APK=$(find app/build/outputs/apk/prod/release -name "*.apk" | head -n 1)
           if [ -n "$PHONE_APK" ]; then
-            DEST="release-artifacts/BitChord-${TAG}.apk"
+            DEST="release-artifacts/PureChord-${TAG}.apk"
             cp "$PHONE_APK" "$DEST"
             echo "Collected phone APK: $DEST"
           fi
@@ -103,7 +103,7 @@ jobs:
           # Copy Wear OS companion APK if generated
           WEAR_APK=$(find wearos/build/outputs/apk/prod/release -name "*.apk" 2>/dev/null | head -n 1)
           if [ -n "$WEAR_APK" ]; then
-            DEST_WEAR="release-artifacts/BitChordWear-${TAG}.apk"
+            DEST_WEAR="release-artifacts/PureChordWear-${TAG}.apk"
             cp "$WEAR_APK" "$DEST_WEAR"
             echo "Collected Wear OS APK: $DEST_WEAR"
           fi
@@ -114,18 +114,18 @@ jobs:
       - name: Upload Build Artifacts to Workflow Run
         uses: actions/upload-artifact@v4
         with:
-          name: bitchord-release-${{ steps.versioning.outputs.release_tag }}
+          name: purechord-release-${{ steps.versioning.outputs.release_tag }}
           path: release-artifacts/*.apk
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.versioning.outputs.release_tag }}
-          name: BitChord SponsorBlock ${{ steps.versioning.outputs.release_tag }}
+          name: PureChord ${{ steps.versioning.outputs.release_tag }}
           body: |
-            ### BitChord Customized Release (`${{ steps.versioning.outputs.release_tag }}`)
+            ### PureChord Release (`${{ steps.versioning.outputs.release_tag }}`)
 
-            Automated signed release build synchronized with upstream and enhanced with custom SponsorBlock functionality.
+            Automated signed release build synchronized with upstream BitChord and enhanced with custom SponsorBlock functionality.
 
             #### Features in this Release:
             - **SponsorBlock Integration:** Auto-skips sponsors, promotional segments, intros, and non-music sections.

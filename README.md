@@ -3,11 +3,16 @@
 <br/>
 <br/>
 
-<img src="Logo.png" alt="BitChord app icon" width="200" />
+<img src="Logo.png" alt="PureChord app icon" width="200" />
 
-# BitChord
+# PureChord
 
-### Aesthetic YouTube Music Client
+### Aesthetic YouTube Music & Podcast Client with SponsorBlock
+
+<br/>
+
+> [!NOTE]
+> **About this fork:** **PureChord** is a customized fork of [BitChord](https://github.com/kushagrasinghx/BitChord) by [Kushagra Singh](https://github.com/kushagrasinghx). It enhances BitChord by integrating modular **SponsorBlock** support across standard music tracks, long-form videos, and podcasts, alongside automated upstream synchronization. All original credit for BitChord's core architecture and design belongs to Kushagra Singh and upstream contributors.
 
 <br/>
 
@@ -70,6 +75,7 @@
 - **Frosted-glass UI** — Telegram-style translucent bars via Haze, Material 3 theming.
 
 #### Controls & Tweaks
+- **SponsorBlock integration** — automatically skip sponsor segments, self-promos, interaction reminders, intros, outros, and off-topic music sections (with per-category toggles for songs, podcasts, and video streams).
 - **Per-network audio quality** — separate quality ceilings for Wi-Fi and mobile data.
 - **Playback speed control** (0.5×–2.0×) and **skip silence**.
 - **Sleep timer** — fixed presets or "stop after this track".
