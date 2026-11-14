@@ -1,19 +1,13 @@
 <div align="center">
 
-<br/>
+# PureChord
+a fork of [BitChord](https://github.com/kushagrasinghx/BitChord)
+
 <br/>
 
 <img src="Logo.png" alt="PureChord app icon" width="200" />
 
-# PureChord
-
-### Aesthetic YouTube Music & Podcast Client with SponsorBlock
-
 <br/>
-
-> [!NOTE]
-> **About this fork:** **PureChord** is a customized fork of [BitChord](https://github.com/kushagrasinghx/BitChord) by [Kushagra Singh](https://github.com/kushagrasinghx). It enhances BitChord by integrating modular **SponsorBlock** support across standard music tracks, long-form videos, and podcasts, alongside automated upstream synchronization. All original credit for BitChord's core architecture and design belongs to Kushagra Singh and upstream contributors.
-
 <br/>
 
 [![Latest release](https://img.shields.io/github/v/release/Deeptanil/PureChord?style=for-the-badge&labelColor=0d1117)](https://github.com/Deeptanil/PureChord/releases)
@@ -23,7 +17,7 @@
 
 <br/>
 
-[**Download**](#download) · [**Features**](#features) · [**Contributing**](#contributing) · [**Support**](#support) · [**Disclaimer**](#disclaimer)
+[**Download**](#download) · [**Features**](#features) · [**Support**](#support) · [**Disclaimer**](#disclaimer) · [**License**](#license)
 
 <br/>
 
@@ -31,6 +25,9 @@
 <a href="https://trendshift.io/repositories/177639?utm_source=repository-badge&amp;utm_medium=badge&amp;utm_campaign=badge-repository-177639" target="_blank" rel="noopener noreferrer"><img src="https://trendshift.io/api/badge/repositories/177639" alt="kushagrasinghx%2FBitChord | Trendshift" width="250" height="55"/></a>
 
 </div>
+
+> [!NOTE]
+> **About this fork:** **PureChord** is a customized personal fork of [BitChord](https://github.com/kushagrasinghx/BitChord) by [Kushagra Singh](https://github.com/kushagrasinghx). It enhances BitChord with seamless SponsorBlock integration across music tracks, podcasts, and video playback alongside musical gap preservation. All core application architecture, design, and playback infrastructure belong to Kushagra Singh and upstream contributors.
 
 > [!IMPORTANT]
 > ### 🌟 Credits & Acknowledgments
@@ -110,33 +107,17 @@ Grab the latest signed APK (`PureChord-v1.9.1-sb.apk` or lighter `PureChord-v1.9
 
 <div align="center">
 
-<h1><a id="contributing"></a>Contributing</h1>
-
-We welcome contributions to BitChord! Please review our [Contributing Guide](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md) before submitting a Pull Request.
-
-[**Contributing Guide**](CONTRIBUTING.md) · [**Code of Conduct**](CODE_OF_CONDUCT.md) · [**Maintainers**](MAINTAINERS.md) · [**Additional Docs**](ADDITIONAL.md)
-
-### Thanks to all contributors ❤
-
-<a href="https://github.com/kushagrasinghx/BitChord/graphs/contributors">
-  <img src="https://raw.githubusercontent.com/kushagrasinghx/BitChord/contributors/contributors.svg" />
-</a>
-
-</div>
-
----
-
-<div align="center">
-
 <h1><a id="support"></a>Support</h1>
 
-BitChord is free and always will be — if it's earned a spot in your rotation, you can chip in here:
-
-<a href="https://ko-fi.com/kushagrasinghx" target="_blank" rel="noopener noreferrer"><img src="https://cdn.jsdelivr.net/gh/JMcrafter26/badges@main/src/assets/donate/kofi-singular-alt/cozy.svg" alt="Support me on Ko-fi" height="55"/></a>
-<a href="https://paypal.me/kuxhagrasingh" target="_blank" rel="noopener noreferrer"><img src="https://cdn.jsdelivr.net/gh/JMcrafter26/badges@main/src/assets/donate/paypal-plural/cozy.svg" alt="Support us on PayPal" height="55"/></a>
+PureChord is a free, non-monetized fork. **These support links belong entirely to Kushagra Singh (original author of BitChord); all donations and financial contributions go directly to him, not to me.** If PureChord or BitChord has earned a spot in your rotation, please consider supporting Kushagra's incredible work:
 
 <br/>
-<img src="upi_support.jpg" alt="UPI Support" width="250" />
+
+<a href="https://ko-fi.com/kushagrasinghx" target="_blank" rel="noopener noreferrer"><img src="https://cdn.jsdelivr.net/gh/JMcrafter26/badges@main/src/assets/donate/kofi-singular-alt/cozy.svg" alt="Support Kushagra on Ko-fi" height="55"/></a>
+<a href="https://paypal.me/kuxhagrasingh" target="_blank" rel="noopener noreferrer"><img src="https://cdn.jsdelivr.net/gh/JMcrafter26/badges@main/src/assets/donate/paypal-plural/cozy.svg" alt="Support Kushagra on PayPal" height="55"/></a>
+
+<br/>
+<img src="upi_support.jpg" alt="UPI Support for Kushagra Singh" width="250" />
 
 </div>
 
@@ -146,12 +127,12 @@ BitChord is free and always will be — if it's earned a spot in your rotation, 
 
 <h1><a id="disclaimer"></a>Disclaimer & Legal Notice</h1>
 
-BitChord is an independent, community-driven third-party audio player and client. It is **not** associated with Google LLC, YouTube Music, Deezer, Telegram, or any of their parent companies.
+PureChord is an independent, community-driven third-party audio player and fork of BitChord. It is **not** associated with, endorsed by, or affiliated with Google LLC, YouTube, YouTube Music, Deezer, Telegram, or any of their parent companies.
 
-* **No Media Hosting:** BitChord does not host, upload, or store copyrighted music files. It operates strictly as an interface to scan local device storage or stream media directly from public, public-facing, or user-authenticated APIs.
-* **Fair Use & API Usage:** This software is created solely for personal research, educational, and fair-use purposes. The user is entirely responsible for ensuring their usage aligns with their local copyright laws and YouTube Terms of Service.
-* **No Ad-Blocking Guarantee:** While BitChord focuses on providing a clean listening environment, it does not guarantee permanent bypasses or modifications to commercial third-party platform conditions.
-* **Copyleft:** BitChord is free software under the GPLv3. The license does not let anyone forbid others from selling or redistributing copies, but any distribution must come with the Corresponding Source under the same license.
+* **No Media Hosting:** PureChord does not host, upload, or store copyrighted music files. It operates strictly as an offline-first client interface to scan local device storage or stream media directly from public, public-facing, or user-authenticated APIs.
+* **Fair Use & API Usage:** This software is created solely for personal research, educational, and fair-use purposes. Users are entirely responsible for ensuring their usage aligns with their local copyright laws and YouTube Terms of Service.
+* **SponsorBlock Data:** Skip segments are crowd-sourced and submitted by the public community via the open-source [SponsorBlock](https://sponsor.ajay.app) database. PureChord does not host or curate user-submitted timestamps.
+* **Copyleft (GPLv3):** As a derivative work of BitChord, PureChord is free software licensed under the GNU General Public License v3.0 (GPLv3). Complete corresponding source code is freely available in this repository under the same license.
 
 </div>
 
@@ -161,6 +142,9 @@ BitChord is an independent, community-driven third-party audio player and client
 
 <h1><a id="license"></a>License</h1>
 
-This project is licensed under the **GNU General Public License v3.0 (GPLv3)**. See the [LICENSE](LICENSE) file for details.
+PureChord is licensed under the **GNU General Public License v3.0 (GPLv3)** in compliance with the original BitChord license. See the [LICENSE](LICENSE) file for complete details.
+
+Copyright (C) 2024–2026 Kushagra Singh (BitChord core)  
+Copyright (C) 2026 PureChord contributors
 
 </div>
