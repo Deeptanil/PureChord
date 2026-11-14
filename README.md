@@ -16,10 +16,10 @@
 
 <br/>
 
-[![Latest release](https://img.shields.io/github/v/release/kushagrasinghx/BitChord?style=for-the-badge&labelColor=0d1117)](https://github.com/kushagrasinghx/BitChord/releases)
-[![License](https://img.shields.io/github/license/kushagrasinghx/BitChord?style=for-the-badge&labelColor=0d1117)](https://github.com/kushagrasinghx/BitChord/blob/main/LICENSE)
-[![Downloads](https://img.shields.io/github/downloads/kushagrasinghx/BitChord/total?style=for-the-badge&labelColor=0d1117)](https://github.com/kushagrasinghx/BitChord/releases)
-[![Listening now](https://api.bitchord.kushagrasingh.in/api/stats/live/badge.svg)](https://api.bitchord.kushagrasingh.in/api/stats/live)
+[![Latest release](https://img.shields.io/github/v/release/Deeptanil/PureChord?style=for-the-badge&labelColor=0d1117)](https://github.com/Deeptanil/PureChord/releases)
+[![License](https://img.shields.io/github/license/Deeptanil/PureChord?style=for-the-badge&labelColor=0d1117)](https://github.com/Deeptanil/PureChord/blob/custom-sponsorblock/LICENSE)
+[![Downloads](https://img.shields.io/github/downloads/Deeptanil/PureChord/total?style=for-the-badge&labelColor=0d1117)](https://github.com/Deeptanil/PureChord/releases)
+[![Upstream](https://img.shields.io/badge/Fork_of-BitChord-blue?style=for-the-badge&labelColor=0d1117)](https://github.com/kushagrasinghx/BitChord)
 
 <br/>
 
@@ -79,7 +79,7 @@
 - **Frosted-glass UI** — Telegram-style translucent bars via Haze, Material 3 theming.
 
 #### Controls & Tweaks
-- **SponsorBlock integration** — automatically skip sponsor segments, self-promos, interaction reminders, intros, outros, and off-topic music sections (with per-category toggles for songs, podcasts, and video streams).
+- **SponsorBlock & Musical Gap Protection** — automatically skips non-music sections (sponsors, self-promos, interaction reminders, intros, outros, off-topic dialogue) directly through the unified "Skip silence & non-music" toggle. Features smart seek detection (restarting skips intro; scrubbing inside whitelists segment) and raised 3.5s silence floor to preserve dramatic musical pauses (e.g., Adele's *Skyfall*).
 - **Per-network audio quality** — separate quality ceilings for Wi-Fi and mobile data.
 - **Playback speed control** (0.5×–2.0×) and **skip silence**.
 - **Sleep timer** — fixed presets or "stop after this track".
@@ -99,9 +99,9 @@
 
 <h1><a id="download"></a>Download</h1>
 
-<a href="https://github.com/kushagrasinghx/BitChord/releases" target="_blank" rel="noopener noreferrer"><img src="https://cdn.jsdelivr.net/gh/JMcrafter26/badges@main/src/assets/supported/android/cozy.svg" alt="Download for Android" height="55"/></a>
+<a href="https://github.com/Deeptanil/PureChord/releases/latest" target="_blank" rel="noopener noreferrer"><img src="https://cdn.jsdelivr.net/gh/JMcrafter26/badges@main/src/assets/supported/android/cozy.svg" alt="Download for Android" height="55"/></a>
 
-Grab the latest signed APK from the [Releases](https://github.com/kushagrasinghx/BitChord/releases) page. Sideloading requires enabling "Install unknown apps" for whichever app you download it with.
+Grab the latest signed APK (`PureChord-v1.9.1-sb.apk` or lighter `PureChord-v1.9.1-sb-arm64-v8a.apk`) from our [Releases](https://github.com/Deeptanil/PureChord/releases) page. Sideloading requires enabling "Install unknown apps" for whichever app you download it with.
 
 
 </div>
