@@ -1,7 +1,7 @@
 <div align="center">
 
 # PureChord
-a fork of [BitChord](https://github.com/kushagrasinghx/BitChord)
+a fork of
 
 <br/>
 
