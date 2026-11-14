@@ -76,13 +76,7 @@ jobs:
           
           SUFFIX="${{ github.event.inputs.tag_suffix || '-sb' }}"
           BASE_TAG="v${VERSION_NAME}${SUFFIX}"
-          
-          # Check if tag already exists in the repo
-          if git rev-parse "$BASE_TAG" >/dev/null 2>&1; then
-            FINAL_TAG="${BASE_TAG}.${{ github.run_number }}"
-          else
-            FINAL_TAG="$BASE_TAG"
-          fi
+          FINAL_TAG="$BASE_TAG"
 
           echo "version_name=${VERSION_NAME}" >> $GITHUB_OUTPUT
           echo "release_tag=${FINAL_TAG}" >> $GITHUB_OUTPUT
@@ -141,14 +135,20 @@ jobs:
             Automated signed release build synchronized with upstream BitChord and enhanced with custom SponsorBlock functionality.
 
             #### Features in this Release:
-            - **SponsorBlock Integration:** Auto-skips sponsors, promotional segments, intros, and non-music sections.
-            - **Podcasts & Video Streams Support:** Extended SponsorBlock support to podcasts and long-form video playback.
-            - **Customizable Segment Categories:** Configurable toggles directly under **Settings > Content Preferences > SponsorBlock**.
-            - **Upstream Sync:** Built from latest upstream BitChord source.
+            - **Zero-Clutter SponsorBlock Integration:** Seamlessly merged into the existing **"Skip silence & non-music"** toggle in playback settings. No extra settings menus or UI clutter.
+            - **Musical Silence DSP Protection:** Elevated silence gap detection to 3.5s with a 400-amplitude floor to protect musical rests, beat pauses (e.g. Adele's *Skyfall*), and instrument decays while continuing to cut non-musical dead air.
+            - **Smart Seek & Replay Logic:**
+              - **Song Restart:** Seeking to the beginning (< 1.0s) immediately skips starting intros straight to the music.
+              - **Deliberate Segment Scrub:** Scrubbing directly into a skipped segment whitelists it, allowing you to listen to dialogues, intros, or sponsor messages without getting kicked out.
+              - **Chained Segments:** Consecutive or adjacent segments are cleanly skipped in sequence without false whitelisting.
+            - **Podcasts & Video Streams Support:** Extended SponsorBlock support to music tracks, podcasts, and video playback.
+            - **Upstream Sync:** Built on top of the latest upstream BitChord source.
 
             #### Release Assets:
             - `PureChord-${{ steps.versioning.outputs.release_tag }}.apk`: Universal APK (all architectures)
             - `PureChord-${{ steps.versioning.outputs.release_tag }}-arm64-v8a.apk`: Lighter arm64-v8a APK for modern Android phones
+
+            **Full Changelog**: https://github.com/Deeptanil/PureChord/commits/${{ steps.versioning.outputs.release_tag }}
           draft: false
           prerelease: false
           files: release-artifacts/*.apk
